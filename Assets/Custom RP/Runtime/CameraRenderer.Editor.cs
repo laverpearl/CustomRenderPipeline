@@ -14,6 +14,8 @@ partial class CameraRenderer
 #if UNITY_EDITOR
     string SampleName { get; set; }
 
+     private static Material errorMaterial;
+
     private static ShaderTagId[] legacyShaderTagIds = {
         new ShaderTagId("Always"),
         new ShaderTagId("ForwardBase"),
@@ -30,7 +32,7 @@ partial class CameraRenderer
             errorMaterial = new(Shader.Find("Hidden/InternalErrorShader"));
         }
         var drawingSettings = new DrawingSettings(
-            legacyShaderTagIds[0], new SortingSettings(camera))
+            legacyShaderTagIds[0], new SortingSettings(this.camera))
         {
             overrideMaterial = errorMaterial
         };
@@ -47,16 +49,16 @@ partial class CameraRenderer
     {
         if (Handles.ShouldRenderGizmos())
         {
-            this.context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
-            this.context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+            this.context.DrawGizmos(this.camera, GizmoSubset.PreImageEffects);
+            this.context.DrawGizmos(this.camera, GizmoSubset.PostImageEffects);
         }
     }
 
     partial void PrepareForSceneWindow ()
     {
-        if (camera.cameraType == CameraType.SceneView)
+        if (this.camera.cameraType == CameraType.SceneView)
         {
-            ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
+            ScriptableRenderContext.EmitWorldGeometryForSceneView(this.camera);
         }
     }
 

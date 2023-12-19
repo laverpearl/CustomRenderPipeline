@@ -11,8 +11,6 @@ public partial class CameraRenderer
 
     private CullingResults cullingResults;
 
-    private static Material errorMaterial;
-
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
 
     private CommandBuffer buffer = new CommandBuffer
@@ -55,30 +53,31 @@ public partial class CameraRenderer
 
     private void DrawVisibleGeometry()
     {
-        var sortingSettings = new SortingSettings(this.camera)
+        var sortingSettings = new SortingSettings(camera)
         {
             criteria = SortingCriteria.CommonOpaque
         };
-        var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings);
+        var drawingSettings = new DrawingSettings(
+            unlitShaderTagId, sortingSettings
+        );
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
         this.context.DrawRenderers(
             cullingResults, ref drawingSettings, ref filteringSettings);
 
-        context.DrawSkybox(camera);
+        this.context.DrawSkybox(camera);
 
-        //sortingSettings.criteria = SortingCriteria.CommonTransparent;
-        //drawingSettings.sortingSettings = sortingSettings;
-        //filteringSettings.renderQueueRange = RenderQueueRange.transparent;
+        sortingSettings.criteria = SortingCriteria.CommonTransparent;
+        drawingSettings.sortingSettings = sortingSettings;
+        filteringSettings.renderQueueRange = RenderQueueRange.transparent;
 
-        //context.DrawRenderers(
-        //    cullingResults, ref drawingSettings, ref filteringSettings);
+        this.context.DrawRenderers(
+            cullingResults, ref drawingSettings, ref filteringSettings);
     }
 
     private void Submit()
     {
         this.buffer.EndSample(SampleName);
-        //this.buffer.EndSample(bufferName);
         this.ExecuteBuffer();
         this.context.Submit();
     }
