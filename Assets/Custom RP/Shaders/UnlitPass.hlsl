@@ -1,33 +1,20 @@
 #ifndef CUSTOM_UNLIT_PASS_INCLUDED
 #define CUSTOM_UNLIT_PASS_INCLUDED
 
-float4 UnlitPassVertex() : SV_POSITION
+#include "../ShaderLibrary/Common.hlsl"
+
+float4 UnlitPassVertex(float3 positionOS : POSITION) : SV_POSITION
 {
-	return 0.0;
+	float3 positionWS = TransformObjectToWorld(positionOS.xyz);
+
+	return TransformWorldToHClip(positionWS);
 }
 
+float4 _BaseColor;
 float4 UnlitPassFragment() : SV_TARGET
 {
-	return 0.0;
+	//return float4(1.0, 1.0, 0.0, 1.0); // ³ë¶û»öÀ¸·Î
+	return _BaseColor;
 }
 
 #endif
-
-Shader "Custom RP/Unlit"
-{
-	Properties
-	{
-	}
-
-	SubShader
-	{
-		Pass
-		{
-			HLSLPROGRAM
-			#pragma vertex UnlitPassVertex
-			#pragma fragment UnlitPassFragment
-			#include "UnlitPass.hlsl"
-			ENDHLSL
-		}
-	}
-}
