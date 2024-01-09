@@ -16,7 +16,7 @@ struct Varyings
 };
 
 Varyings UnlitPassVertex(Attributes input) 
-{ //: SV_POSITION {
+{ 
 	Varyings output;
 	UNITY_SETUP_INSTANCE_ID(input);
 	UNITY_TRANSFER_INSTANCE_ID(input, output);

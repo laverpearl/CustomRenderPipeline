@@ -10,9 +10,9 @@ Shader "Custom RP/Lit"
 	{
 		Pass
 		{
-			Tags{ "LightMode" = "CustomLit" }
+			Tags{ "LightMode" = "CustomLit" } // 커스텀 조명 사용 
 				HLSLPROGRAM
-			#pragma target 3.5
+				#pragma target 3.5
 				#pragma vertex LitPassVertex
 				#pragma fragment LitPassFragment
 				#include "LitPass.hlsl"

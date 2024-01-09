@@ -27,7 +27,6 @@ public class Lighting
     {
         this.cullingResults = cullingResults;
         buffer.BeginSample(bufferName);
-        //SetupDirectionalLight();
         SetupLights();
         buffer.EndSample(bufferName);
         context.ExecuteCommandBuffer(buffer);
@@ -36,11 +35,6 @@ public class Lighting
 
     void SetupDirectionalLight(int index, ref VisibleLight visibleLight)
     {
-        //Light light = RenderSettings.sun;
-        //buffer.SetGlobalVector(dirLightColorId, light.color.linear);
-        //buffer.SetGlobalVector(dirLightColorId, light.color.linear * light.intensity);
-        //buffer.SetGlobalVector(dirLightDirectionId, -light.transform.forward);
-
         dirLightColors[index] = visibleLight.finalColor;
         dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
     }
@@ -49,12 +43,22 @@ public class Lighting
     {
         NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
 
-        int dirLightCount = 0;
+        // 모든 가시광선을 반복하면서 세팅 + GPU에 데이터를 보내기 
+        //for (int i = 0; i < visibleLights.Length; i++)
+        //{
+        //    VisibleLight visibleLight = visibleLights[i];
+        //    SetupDirectionalLight(i, visibleLight);
+        //}
 
+        //buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
+        //buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
+        //buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+
+        int dirLightCount = 0;
         for (int i = 0; i < visibleLights.Length; i++)
         {
             VisibleLight visibleLight = visibleLights[i];
-            if (visibleLight.lightType == LightType.Directional)
+            if (visibleLight.lightType == LightType.Directional) // 방향성 이외에 다른 조명은 무시하도록 함 
             {
                 this.SetupDirectionalLight(dirLightCount++, ref visibleLight);
                 if (dirLightCount >= maxDirLightCount)
@@ -62,17 +66,10 @@ public class Lighting
                     break;
                 }
             }
-            //SetupDirectionalLight(dirLightCount++, visibleLight);
-
-            //if (dirLightCount >= maxDirLightCount)
-            //{
-            //    break;
-            //}
         }
 
         buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
         buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
         buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
     }
-
 }

@@ -3,12 +3,9 @@ using UnityEngine.Rendering;
 
 public partial class CameraRenderer
 {
-    ScriptableRenderContext context;
-
-    Camera camera;
-
-    const string bufferName = "Render Camera";
-
+    private ScriptableRenderContext context;
+    private Camera camera;
+    private const string bufferName = "Render Camera";
     private CullingResults cullingResults;
 
     static ShaderTagId unlitShaderTagId = new ShaderTagId("SRPDefaultUnlit");
@@ -61,11 +58,13 @@ public partial class CameraRenderer
         {
             criteria = SortingCriteria.CommonOpaque
         };
+
         var drawingSettings = new DrawingSettings(unlitShaderTagId, sortingSettings)
         {
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+
         drawingSettings.SetShaderPassName(1, litShaderTagId);
 
         var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
