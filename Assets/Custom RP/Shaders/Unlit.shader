@@ -10,6 +10,7 @@ Shader "Custom RP/Unlit"
 		Pass 
 		{
 			HLSLPROGRAM
+			#pragma target 3.5
 			#pragma multi_compile_instancing // GPU인스턴싱 사용함 
 			#pragma vertex UnlitPassVertex
 			#pragma fragment UnlitPassFragment

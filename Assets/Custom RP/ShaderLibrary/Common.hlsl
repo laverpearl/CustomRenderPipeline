@@ -16,8 +16,16 @@
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 
+TEXTURE2D(_BaseMap);
+SAMPLER(sampler_BaseMap);
+
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
 UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+
+//UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+//UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+//UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 #endif

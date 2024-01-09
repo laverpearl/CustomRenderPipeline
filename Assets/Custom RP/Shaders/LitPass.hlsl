@@ -2,6 +2,9 @@
 #define CUSTOM_LIT_PASS_INCLUDED
 
 #include "../ShaderLibrary/Common.hlsl"
+#include "../ShaderLibrary/Surface.hlsl"
+#include "../ShaderLibrary/Light.hlsl"
+#include "../ShaderLibrary/Lighting.hlsl"
 
 struct Attributes
 {
@@ -34,20 +37,24 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 {
 	UNITY_SETUP_INSTANCE_ID(input);
 
-	//float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, _BaseMap, input.baseUV);
-	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
-	float4 base = baseColor;
+	//float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
+	//float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+	//float4 base = baseColor;
 
-	base.rgb = normalize(input.normalWS);
-	return base;
+	//base.rgb = normalize(input.normalWS);//abs(length(input.normalWS) - 1.0) * 10.0;
+	////return base;
 
-	//Surface surface;
-	//surface.normal = normalize(input.normalWS);
-	//surface.color = base.rgb;
-	//surface.alpha = base.a;
+float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
+float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+float4 base = baseMap * baseColor;
 
-	//float3 color = GetLighting(surface);
-	//return float4(color, surface.alpha);
+	Surface surface;
+	surface.normal = normalize(input.normalWS);
+	surface.color = base.rgb;
+	surface.alpha = base.a;
+	//return float4(surface.color, surface.alpha);
+	float3 color = GetLighting(surface);
+	return float4(color, surface.alpha);
 }
 
 #endif
