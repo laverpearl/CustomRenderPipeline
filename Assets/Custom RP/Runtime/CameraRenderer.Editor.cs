@@ -3,18 +3,10 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
-partial class CameraRenderer
+public partial class CameraRenderer
 {
-    partial void DrawGizmos();
-    partial void DrawUnsupportedShaders();
-    partial void PrepareForSceneWindow();
-    partial void PrepareBuffer();
-
 
 #if UNITY_EDITOR
-    string SampleName { get; set; }
-
-     private static Material errorMaterial;
 
     private static ShaderTagId[] legacyShaderTagIds = {
         new ShaderTagId("Always"),
@@ -24,25 +16,33 @@ partial class CameraRenderer
         new ShaderTagId("VertexLMRGBM"),
         new ShaderTagId("VertexLM")
     };
+    private static Material errorMaterial;
 
+    partial void DrawGizmos();
     partial void DrawUnsupportedShaders()
     {
         if (errorMaterial == null)
         {
-            errorMaterial = new(Shader.Find("Hidden/InternalErrorShader"));
+            errorMaterial =
+                new Material(Shader.Find("Hidden/InternalErrorShader"));
         }
+
         var drawingSettings = new DrawingSettings(
-            legacyShaderTagIds[0], new SortingSettings(this.camera))
+            legacyShaderTagIds[0], new SortingSettings(this.camera)
+        )
         {
             overrideMaterial = errorMaterial
         };
+
         for (int i = 1; i < legacyShaderTagIds.Length; i++)
         {
             drawingSettings.SetShaderPassName(i, legacyShaderTagIds[i]);
         }
+
         var filteringSettings = FilteringSettings.defaultValue;
         this.context.DrawRenderers(
-            cullingResults, ref drawingSettings, ref filteringSettings);
+            this.cullingResults, ref drawingSettings, ref filteringSettings
+        );
     }
 
     partial void DrawGizmos()
@@ -54,7 +54,7 @@ partial class CameraRenderer
         }
     }
 
-    partial void PrepareForSceneWindow ()
+    partial void PrepareForSceneWindow()
     {
         if (this.camera.cameraType == CameraType.SceneView)
         {
@@ -62,14 +62,14 @@ partial class CameraRenderer
         }
     }
 
-    partial void PrepareBuffer ()
-	{
-	    Profiler.BeginSample("Editor Only");
+    private string SampleName { get; set; }
+    partial void PrepareBuffer()
+    {
+        Profiler.BeginSample("Editor Only");
         this.buffer.name = this.SampleName = this.camera.name;
         Profiler.EndSample();
-	}
-
+    }
 #else
-    const string SampleName = this.bufferName;
+    const string SampleName = bufferName;
 #endif
 }
