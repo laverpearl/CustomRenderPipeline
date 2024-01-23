@@ -15,6 +15,7 @@ Shader "Custom RP/Lit"
 			Tags{ "LightMode" = "CustomLit" } // 커스텀 조명 사용 
 				HLSLPROGRAM
 				#pragma target 3.5
+				#pragma multi_compile_instancing // GPU인스턴싱 사용함 
 				#pragma vertex LitPassVertex
 				#pragma fragment LitPassFragment
 				#include "LitPass.hlsl"
