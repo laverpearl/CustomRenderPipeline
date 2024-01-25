@@ -534,7 +534,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &196233012
+--- !u!1 &175938406
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -542,27 +542,27 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 196233014}
-  - component: {fileID: 196233013}
+  - component: {fileID: 175938408}
+  - component: {fileID: 175938407}
   m_Layer: 0
-  m_Name: Directional Light (1)
+  m_Name: Directional Light (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &196233013
+--- !u!108 &175938407
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 196233012}
+  m_GameObject: {fileID: 175938406}
   m_Enabled: 1
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.6509349, b: 0.4292453, a: 1}
+  m_Color: {r: 0.7877358, g: 0.93453395, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -613,21 +613,21 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!4 &196233014
+--- !u!4 &175938408
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 196233012}
+  m_GameObject: {fileID: 175938406}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.09857331, y: 0.90040123, z: -0.27613965, w: -0.32141536}
-  m_LocalPosition: {x: -6.6, y: 8, z: 0}
+  m_LocalRotation: {x: 0.81601816, y: 0.057371873, z: -0.56926215, w: 0.08224065}
+  m_LocalPosition: {x: 27.58, y: -2.38, z: 0.26}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 34.1, y: 219.29, z: 0}
+  m_LocalEulerAnglesHint: {x: 168.49, y: 69.8, z: 0}
 --- !u!1 &235299272
 GameObject:
   m_ObjectHideFlags: 0
@@ -687,7 +687,7 @@ Camera:
     height: 0.5
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 42
+  field of view: 34
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -714,7 +714,7 @@ Transform:
   m_GameObject: {fileID: 235299272}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 20, z: 0}
+  m_LocalPosition: {x: 0, y: 13.89, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2415,7 +2415,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 0.6179246, g: 0.6566524, b: 1, a: 1}
+  m_Color: {r: 0.504717, g: 0.65120906, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -2783,7 +2783,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 0.6933962, g: 1, b: 0.8141962, a: 1}
+  m_Color: {r: 1, g: 0.84313726, b: 0.9901587, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -3704,7 +3704,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f16cf4e03348234e809451c0e13e589, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   material: {fileID: 2100000, guid: b8d6309691c630740b5f380359657a19, type: 2}
 --- !u!114 &1987822301
 MonoBehaviour:
@@ -3718,10 +3718,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d07bd955900bf74f9c386e74329bc27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 0.9198113, b: 0.9198113, a: 1}
+  baseColor: {r: 1, g: 1, b: 1, a: 1}
   alphaCutoff: 0.445
-  metallic: 0.486
-  smoothness: 0.852
+  metallic: 0.149
+  smoothness: 0.941
 --- !u!65 &1987822302
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3792,7 +3792,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1987822299}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!4 &1987822305
 Transform:
   m_ObjectHideFlags: 0
@@ -4225,9 +4225,9 @@ SceneRoots:
   m_Roots:
   - {fileID: 235299275}
   - {fileID: 963194228}
-  - {fileID: 196233014}
   - {fileID: 1713974512}
   - {fileID: 1518987492}
+  - {fileID: 175938408}
   - {fileID: 1987822305}
   - {fileID: 1225465242}
   - {fileID: 2012568429}

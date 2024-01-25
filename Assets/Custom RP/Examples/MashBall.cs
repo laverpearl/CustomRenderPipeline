@@ -12,9 +12,9 @@ public class MeshBall : MonoBehaviour
 
     [SerializeField]
     private Material material = default;
-    private Matrix4x4[] matrices = new Matrix4x4[100];
-    private Vector4[] baseColors = new Vector4[100];
-    float[] metallic = new float[100], smoothness = new float[100];
+    private Matrix4x4[] matrices = new Matrix4x4[50];
+    private Vector4[] baseColors = new Vector4[50];
+    float[] metallic = new float[50], smoothness = new float[50];
     private MaterialPropertyBlock block;
 
     //private void Awake()
@@ -37,7 +37,7 @@ public class MeshBall : MonoBehaviour
                 Quaternion.Euler(
                     Random.value * 360f, Random.value * 360f, Random.value * 360f
                 ),
-                Vector3.one * Random.Range(0.5f, 1.5f)
+                Vector3.one * Random.Range(0.1f, 0.5f)
             );
             //baseColors[i] =
             //    new Vector4(
@@ -45,7 +45,7 @@ public class MeshBall : MonoBehaviour
             //        Random.Range(0.5f, 1f)
             //    );
             baseColors[i] = new Vector4(1f,1f,1f,1f);//new Vector4(Random.Range(0.5f, 1f), Random.Range(0.5f, 1f), Random.Range(0.5f, 1f), Random.Range(0.5f, 1f));
-            metallic[i] = 0.2f;//Random.value < 0.25f ? 1f : 0f;
+            metallic[i] = 0.1f;//Random.value < 0.25f ? 1f : 0f;
             smoothness[i] = 0.9f;//Random.Range(0.05f, 0.95f);
         }
     }
@@ -68,6 +68,6 @@ public class MeshBall : MonoBehaviour
             block.SetFloatArray(metallicId, metallic);
             block.SetFloatArray(smoothnessId, smoothness);
         }
-        Graphics.DrawMeshInstanced(mesh, 0, material, matrices, 100, block);
+        Graphics.DrawMeshInstanced(mesh, 0, material, matrices, 50, block);
     }
 }
