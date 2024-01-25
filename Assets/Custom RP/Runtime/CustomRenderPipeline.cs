@@ -7,13 +7,16 @@ public class CustomRenderPipeline : RenderPipeline
     CameraRenderer renderer = new CameraRenderer();
     private readonly bool useDynamicBatching;
     private readonly bool useGPUInstancing;
+    ShadowSettings shadowSettings;
 
-    public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher)
+    public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, ShadowSettings shadowSettings)
     {
         this.useDynamicBatching = useDynamicBatching;
         this.useGPUInstancing = useGPUInstancing;
         GraphicsSettings.useScriptableRenderPipelineBatching = useSRPBatcher;
         GraphicsSettings.lightsUseLinearIntensity = true;
+
+        this.shadowSettings = shadowSettings;
     }
 
     // Unity 2022 이전에 사용하던 함수이지만 abstract로 선언되어 있으므로 유지해 둔다.
