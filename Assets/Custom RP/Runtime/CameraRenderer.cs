@@ -13,7 +13,7 @@ public partial class CameraRenderer
     private static readonly ShaderTagId litShaderTagId = new ShaderTagId("CustomLit");
     private Lighting lighting = new Lighting();
 
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -24,13 +24,13 @@ public partial class CameraRenderer
 
         this.PrepareBuffer();
         this.PrepareForSceneWindow();
-        if (!this.Cull())
+        if (!this.Cull(shadowSettings.maxDistance))
         {
             return;
         }
 
         this.Setup();
-        this.lighting.Setup(context, this.cullingResults);
+        this.lighting.Setup(context, this.cullingResults, shadowSettings);
         this.DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         this.DrawUnsupportedShaders();
         this.DrawGizmos();
@@ -92,10 +92,12 @@ public partial class CameraRenderer
         this.context.Submit();
     }
 
-    private bool Cull()
+    private bool Cull(float maxShadowDistance)
     {
         if (this.camera.TryGetCullingParameters(out ScriptableCullingParameters p))
         {
+            //p.shadowDistance = maxShadowDistance;
+            p.shadowDistance = Mathf.Min(maxShadowDistance, camera.farClipPlane);
             this.cullingResults = this.context.Cull(ref p);
             return true;
         }
