@@ -5,6 +5,7 @@ public class Shadows
 {
     const string bufferName = "Shadows";
     const int maxShadowedDirectionalLightCount = 1;
+    int ShadowedDirectionalLightCount;
 
     CommandBuffer buffer = new CommandBuffer
     {
@@ -17,11 +18,34 @@ public class Shadows
 
     ShadowSettings settings;
 
+    struct ShadowedDirectionalLight
+    {
+        public int visibleLightIndex;
+    }
+
+    ShadowedDirectionalLight[] ShadowedDirectionalLights = new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
+
     public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings setting)
     {
         this.context = context;
         this.cullingResults = cullingResults;
         this.settings = settings;
+
+        ShadowedDirectionalLightCount = 0;
+    }
+
+    public void ReserveDirectionalShadows(Light light, int visibleLightIndex) 
+    {
+        if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount &&
+            light.shadows != LightShadows.None && light.shadowStrength > 0f &&
+            cullingResults.GetShadowCasterBounds(visibleLightIndex, out Bounds b))
+        {
+            ShadowedDirectionalLights[ShadowedDirectionalLightCount++] =
+                new ShadowedDirectionalLight
+                {
+                    visibleLightIndex = visibleLightIndex
+                };
+        }
     }
 
     void ExecuteBuffer()
