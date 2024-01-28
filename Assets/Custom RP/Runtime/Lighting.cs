@@ -1,29 +1,29 @@
-using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Unity.Collections;
 
 public class Lighting
 {
-    const int maxDirLightCount = 4;
+    private const string bufferName = "Lighting";
+    private const int maxDirLightCount = 4;
 
     private static readonly int
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
         dirLightColorsId = Shader.PropertyToID("_DirectionalLightColors"),
-        dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections");
+        dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections"),
+        dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
 
     private static readonly Vector4[]
         dirLightColors = new Vector4[maxDirLightCount],
-        dirLightDirections = new Vector4[maxDirLightCount];
+        dirLightDirections = new Vector4[maxDirLightCount],
+        dirLightShadowData = new Vector4[maxDirLightCount];
 
-    const string bufferName = "Lighting";
-    CommandBuffer buffer = new CommandBuffer
+    private CullingResults cullingResults;
+    private Shadows shadows = new Shadows();
+    private CommandBuffer buffer = new CommandBuffer
     {
         name = bufferName
     };
-
-    CullingResults cullingResults;
-
-    Shadows shadows = new Shadows();
 
     public void Setup(ScriptableRenderContext context, CullingResults cullingResults, ShadowSettings shadowSettings)
     {
@@ -31,40 +31,23 @@ public class Lighting
         buffer.BeginSample(bufferName);
         shadows.Setup(context, cullingResults, shadowSettings);
         SetupLights();
+        shadows.Render();
         buffer.EndSample(bufferName);
         context.ExecuteCommandBuffer(buffer);
         buffer.Clear();
     }
 
-    void SetupDirectionalLight(int index, ref VisibleLight visibleLight)
+    public void SetupLights()
     {
-        dirLightColors[index] = visibleLight.finalColor;
-        dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
-        shadows.ReserveDirectionalShadows(visibleLight.light, index);
-    }
-
-    void SetupLights() 
-    {
-        NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
-
         // 모든 가시광선을 반복하면서 세팅 + GPU에 데이터를 보내기 
-        //for (int i = 0; i < visibleLights.Length; i++)
-        //{
-        //    VisibleLight visibleLight = visibleLights[i];
-        //    SetupDirectionalLight(i, visibleLight);
-        //}
-
-        //buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
-        //buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
-        //buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
-
+        NativeArray<VisibleLight> visibleLights = cullingResults.visibleLights;
         int dirLightCount = 0;
         for (int i = 0; i < visibleLights.Length; i++)
         {
             VisibleLight visibleLight = visibleLights[i];
             if (visibleLight.lightType == LightType.Directional) // 방향성 이외에 다른 조명은 무시하도록 함 
             {
-                this.SetupDirectionalLight(dirLightCount++, ref visibleLight);
+                SetupDirectionalLight(dirLightCount++, ref visibleLight);
                 if (dirLightCount >= maxDirLightCount)
                 {
                     break;
@@ -75,5 +58,18 @@ public class Lighting
         buffer.SetGlobalInt(dirLightCountId, visibleLights.Length);
         buffer.SetGlobalVectorArray(dirLightColorsId, dirLightColors);
         buffer.SetGlobalVectorArray(dirLightDirectionsId, dirLightDirections);
+        buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
+    }
+
+    public void SetupDirectionalLight(int index, ref VisibleLight visibleLight)
+    {
+        dirLightColors[index] = visibleLight.finalColor;
+        dirLightDirections[index] = -visibleLight.localToWorldMatrix.GetColumn(2);
+        dirLightShadowData[index] = shadows.ReserveDirectionalShadows(visibleLight.light, index);
+    }
+
+    public void Cleanup()
+    {
+        shadows.Cleanup();
     }
 }

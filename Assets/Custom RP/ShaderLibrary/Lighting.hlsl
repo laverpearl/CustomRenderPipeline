@@ -8,7 +8,7 @@ float3 IncomingLight(Surface surface, Light light)
 	//return dot(surface.normal, light.direction) * light.color;
 
 	// 내적이 음수면 0으로 고정해야 함, saturate 이용
-	return saturate(dot(surface.normal, light.direction )) * light.color;
+	return saturate(dot(surface.normal, light.direction ) * light.attenuation) * light.color;
 }
 
 float3 GetLighting(Surface surface, BRDF brdf, Light light)
@@ -17,7 +17,7 @@ float3 GetLighting(Surface surface, BRDF brdf, Light light)
 }
 
 // 실제 조명을 계산하기 위한 함수 생성 
-float3 GetLighting(Surface surface, BRDF brdf)
+float3 GetLighting(Surface surfaceWS, BRDF brdf)
 {
 	// 알베도 적용 
 	// 표면 색상을 결과에 표함시킨다 
@@ -26,10 +26,9 @@ float3 GetLighting(Surface surface, BRDF brdf)
 	float3 color = 0.0;
 	for (int i = 0; i < GetDirectionalLightCount(); i++) 
 	{
-		color += GetLighting(surface, brdf, GetDirectionalLight(i));
+		color += GetLighting(surfaceWS, brdf, GetDirectionalLight(i, surfaceWS));
 	}
 
 	return color;
 }
-
 #endif

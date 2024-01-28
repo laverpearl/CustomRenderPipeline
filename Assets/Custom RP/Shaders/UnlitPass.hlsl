@@ -30,5 +30,4 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
 	UNITY_SETUP_INSTANCE_ID(input);
 	return UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 }
-
 #endif

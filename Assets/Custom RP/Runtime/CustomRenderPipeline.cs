@@ -4,10 +4,10 @@ using UnityEngine.Rendering;
 
 public class CustomRenderPipeline : RenderPipeline
 {
-    CameraRenderer renderer = new CameraRenderer();
+    private CameraRenderer renderer = new CameraRenderer();
     private readonly bool useDynamicBatching;
     private readonly bool useGPUInstancing;
-    ShadowSettings shadowSettings;
+    private ShadowSettings shadowSettings;
 
     public CustomRenderPipeline(bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, ShadowSettings shadowSettings)
     {
