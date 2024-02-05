@@ -18,6 +18,7 @@ public class Shadows
     {
         public int visibleLightIndex;
         public float slopeScaleBias;
+        public float nearPlaneOffset;
     }
 
     public ShadowedDirectionalLight[] ShadowedDirectionalLights = new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
@@ -28,10 +29,17 @@ public class Shadows
     private static int cascadeCountId = Shader.PropertyToID("_CascadeCount");
     private static int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
     //private static int shadowDistanceId = Shader.PropertyToID("_ShadowDistance");
+    private static int shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize");
     private static int cascadeDataId = Shader.PropertyToID("_CascadeData");
     private static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
     private static Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
+
+    static string[] directionalFilterKeywords = {
+        "_DIRECTIONAL_PCF3",
+        "_DIRECTIONAL_PCF5",
+        "_DIRECTIONAL_PCF7",
+    };
 
     static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades],
         cascadeData = new Vector4[maxCascades];
@@ -70,7 +78,8 @@ public class Shadows
                 new ShadowedDirectionalLight
                 {
                     visibleLightIndex = visibleLightIndex,
-                    slopeScaleBias = light.shadowBias
+                    slopeScaleBias = light.shadowBias,
+                    nearPlaneOffset = light.shadowNearPlane
                 };
             return new Vector3(
                 light.shadowStrength, settings.directional.cascadeCount * ShadowedDirectionalLightCount++,
@@ -99,6 +108,10 @@ public class Shadows
         buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.ClearRenderTarget(true, false, Color.clear);
+        SetKeywords();
+        buffer.SetGlobalVector(
+            shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize)
+        );
         buffer.BeginSample(bufferName);
         ExecuteBuffer();
 
@@ -128,6 +141,22 @@ public class Shadows
         ExecuteBuffer();
     }
 
+    void SetKeywords()
+    {
+        int enabledIndex = (int)settings.directional.filter - 1;
+        for (int i = 0; i < directionalFilterKeywords.Length; i++)
+        {
+            if (i == enabledIndex)
+            {
+                buffer.EnableShaderKeyword(directionalFilterKeywords[i]);
+            }
+            else
+            {
+                buffer.DisableShaderKeyword(directionalFilterKeywords[i]);
+            }
+        }
+    }
+
     private void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = ShadowedDirectionalLights[index];
@@ -143,7 +172,7 @@ public class Shadows
         for (int i = 0; i < cascadeCount; i++)
         {
             cullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex,
-                i, cascadeCount, ratios, tileSize, 0f, out Matrix4x4 viewMatrix, 
+                i, cascadeCount, ratios, tileSize, light.nearPlaneOffset, out Matrix4x4 viewMatrix, 
                 out Matrix4x4 projectionMatrix, out ShadowSplitData splitData);
 
             shadowSettings.splitData = splitData;
@@ -182,10 +211,12 @@ public class Shadows
         cascadeData[index].x = 1f / cullingSphere.w;
 
         float texelSize = 2f * cullingSphere.w / tileSize;
+        float filterSize = texelSize * ((float)settings.directional.filter + 1f);
+        cullingSphere.w -= filterSize;
         cullingSphere.w *= cullingSphere.w;
         cascadeCullingSpheres[index] = cullingSphere;
 
-        cascadeData[index] = new Vector4(1f / cullingSphere.w, texelSize * 1.4142136f);
+        cascadeData[index] = new Vector4(1f / cullingSphere.w, filterSize * 1.4142136f);
     }
 
     private Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, int split)
