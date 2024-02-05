@@ -23,10 +23,13 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf)
 	// 표면 색상을 결과에 표함시킨다 
 	//return surface.normal.y * surface.color;
 
+	ShadowData shadowData = GetShadowData(surfaceWS);
+
 	float3 color = 0.0;
 	for (int i = 0; i < GetDirectionalLightCount(); i++) 
 	{
-		color += GetLighting(surfaceWS, brdf, GetDirectionalLight(i, surfaceWS));
+		Light light = GetDirectionalLight(i, surfaceWS, shadowData);
+		color += GetLighting(surfaceWS, brdf, light);
 	}
 
 	return color;
