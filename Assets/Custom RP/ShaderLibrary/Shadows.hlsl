@@ -40,7 +40,6 @@ int _CascadeCount;
 float4 _CascadeCullingSpheres[MAX_CASCADE_COUNT];
 float4 _CascadeData[MAX_CASCADE_COUNT];
 float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHT_COUNT * MAX_CASCADE_COUNT];
-//float _ShadowDistance;
 float4 _ShadowAtlasSize;
 float4 _ShadowDistanceFade;
 CBUFFER_END
@@ -77,14 +76,14 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowD
         return 1.0;
     }
 
-    //float3 normalBias = surfaceWS.normal * _CascadeData[global.cascadeIndex].y;
     float3 normalBias = surfaceWS.normal * (directional.normalBias * _CascadeData[global.cascadeIndex].y);
     float3 positionSTS = mul(
         _DirectionalShadowMatrices[directional.tileIndex],
         float4(surfaceWS.position + normalBias, 1.0)
     ).xyz;
     float shadow = FilterDirectionalShadow(positionSTS);
-    if (global.cascadeBlend < 1.0) {
+    if (global.cascadeBlend < 1.0) 
+    {
         normalBias = surfaceWS.normal *
             (directional.normalBias * _CascadeData[global.cascadeIndex + 1].y);
         positionSTS = mul(
@@ -119,9 +118,8 @@ ShadowData GetShadowData(Surface surfaceWS)
         float distanceSqr = DistanceSquared(surfaceWS.position, sphere.xyz);
         if (distanceSqr < sphere.w) 
         {
-            float fade = FadedShadowStrength(
-                distanceSqr, _CascadeData[i].x, _ShadowDistanceFade.z
-            );
+            float fade = FadedShadowStrength(distanceSqr, _CascadeData[i].x, _ShadowDistanceFade.z);
+
             if (i == _CascadeCount - 1) 
             {
                 data.strength *= fade;

@@ -24,14 +24,14 @@ public class Shadows
     public ShadowedDirectionalLight[] ShadowedDirectionalLights = new ShadowedDirectionalLight[maxShadowedDirectionalLightCount];
     private int ShadowedDirectionalLightCount;
 
-    private static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
-    private static int dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
-    private static int cascadeCountId = Shader.PropertyToID("_CascadeCount");
-    private static int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
-    //private static int shadowDistanceId = Shader.PropertyToID("_ShadowDistance");
-    private static int shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize");
-    private static int cascadeDataId = Shader.PropertyToID("_CascadeData");
-    private static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
+    private static int 
+        dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
+        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
+        cascadeCountId = Shader.PropertyToID("_CascadeCount"),
+        cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
+        shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
+        cascadeDataId = Shader.PropertyToID("_CascadeData"),
+        shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
 
     private static Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
 
@@ -67,9 +67,9 @@ public class Shadows
         else
         {
             buffer.GetTemporaryRT(dirShadowAtlasId, 1, 1, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-            buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-            buffer.ClearRenderTarget(true, false, Color.clear);
-            ExecuteBuffer();
+            //buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+            //buffer.ClearRenderTarget(true, false, Color.clear);
+            //ExecuteBuffer();
         }
     }
 
@@ -108,16 +108,16 @@ public class Shadows
 
     private void RenderDirectionalShadows()
     {
-        //  if (settings != null)
         int atlasSize = (int)settings.directional.atlasSize;
+
         buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         buffer.ClearRenderTarget(true, false, Color.clear);
+
         SetKeywords(directionalFilterKeywords, (int)settings.directional.filter - 1);
         SetKeywords(cascadeBlendKeywords, (int)settings.directional.cascadeBlend - 1);
-        buffer.SetGlobalVector(
-            shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize)
-        );
+
+        buffer.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
         buffer.BeginSample(bufferName);
         ExecuteBuffer();
 
@@ -149,7 +149,6 @@ public class Shadows
 
     void SetKeywords(string[] keywords, int enabledIndex)
     {
-        //int enabledIndex = (int)settings.directional.filter - 1;
         for (int i = 0; i < keywords.Length; i++)
         {
             if (i == enabledIndex)
@@ -190,10 +189,6 @@ public class Shadows
             if (index == 0)
             {
                 SetCascadeData(i, splitData.cullingSphere, tileSize);
-                //Vector4 cullingSphere = splitData.cullingSphere;
-                //cullingSphere.w *= cullingSphere.w;
-
-                //cascadeCullingSpheres[i] = cullingSphere;
             }
 
             int tileIndex = tileOffset + i;
@@ -203,11 +198,6 @@ public class Shadows
             );
 
             buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
-            // 일단은 비활성화 
-            //buffer.SetGlobalDepthBias(50000f, 0f);
-            //buffer.SetGlobalDepthBias(500000f, 0f);
-
-            //buffer.SetGlobalDepthBias(0f, 3f);
 
             buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
             ExecuteBuffer();
@@ -238,7 +228,9 @@ public class Shadows
             m.m22 = -m.m22;
             m.m23 = -m.m23;
         }
+
         float scale = 1f / split;
+
         m.m00 = (0.5f * (m.m00 + m.m30) + offset.x * m.m30) * scale;
         m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
         m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;
@@ -258,9 +250,8 @@ public class Shadows
     private Vector2 SetTileViewport(int index, int split, float tileSize)
     {
         Vector2 offset = new Vector2(index % split, index / split);
-        buffer.SetViewport(new Rect(
-            offset.x * tileSize, offset.y * tileSize, tileSize, tileSize
-        ));
+        buffer.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize, tileSize, tileSize));
+
         return offset;
     }
 }
