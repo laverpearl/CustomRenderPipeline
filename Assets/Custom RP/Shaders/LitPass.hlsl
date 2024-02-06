@@ -35,11 +35,17 @@ Varyings LitPassVertex(Attributes input)
 	UNITY_TRANSFER_INSTANCE_ID(input, output);
 	output.positionWS = TransformObjectToWorld(input.positionOS);
 	output.positionCS = TransformWorldToHClip(output.positionWS);
-	output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-
+	//output.normalWS = TransformObjectToWorldNormal(input.normalOS);
+#if UNITY_REVERSED_Z
+	output.positionCS.z =
+		min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+#else
+	output.positionCS.z =
+		max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+#endif
 	float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
 	output.baseUV = input.baseUV * baseST.xy + baseST.zw;
-
+	output.normalWS = TransformObjectToWorldNormal(input.normalOS);
 	return output;
 }
 
@@ -50,7 +56,12 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
 	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
 	float4 base = baseMap * baseColor;
-
+#if defined(_SHADOWS_CLIP)
+	clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
+#elif defined(_SHADOWS_DITHER)
+	float dither = InterleavedGradientNoise(input.positionCS.xy, 0);
+	clip(base.a - dither);
+#endif
 	Surface surface;
 	surface.position = input.positionWS;
 	surface.normal = normalize(input.normalWS);
@@ -63,9 +74,16 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
 	surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
 
-	BRDF brdf = GetBRDF(surface);
-	float3 color = GetLighting(surface, brdf);
+	//BRDF brdf = GetBRDF(surface);
+	//float3 color = GetLighting(surface, brdf);
 
+	//return float4(color, surface.alpha);
+#if defined(_PREMULTIPLY_ALPHA)
+	BRDF brdf = GetBRDF(surface, true);
+#else
+	BRDF brdf = GetBRDF(surface);
+#endif
+	float3 color = GetLighting(surface, brdf);
 	return float4(color, surface.alpha);
 
 	// 월드 공간 법선 벡터
