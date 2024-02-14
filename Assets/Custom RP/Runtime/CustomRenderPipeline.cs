@@ -26,6 +26,7 @@ public class CustomRenderPipeline : RenderPipeline
 
     protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
     {
+        // 루프의 모든 카메라 렌더링 
         foreach (var camera in cameras)
         {
             renderer.Render(context, camera, this.useDynamicBatching, this.useGPUInstancing, shadowSettings);
