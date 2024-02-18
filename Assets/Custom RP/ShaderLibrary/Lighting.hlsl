@@ -17,7 +17,7 @@ float3 GetLighting(Surface surface, BRDF brdf, Light light)
 }
 
 // 실제 조명을 계산하기 위한 함수 생성 
-float3 GetLighting(Surface surfaceWS, BRDF brdf)
+float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi)
 {
 	// 알베도 적용 
 	// 표면 색상을 결과에 표함시킨다 
@@ -25,7 +25,7 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf)
 
 	ShadowData shadowData = GetShadowData(surfaceWS);
 
-	float3 color = 0.0;
+	float3 color = gi.diffuse;
 	for (int i = 0; i < GetDirectionalLightCount(); i++) 
 	{
 		Light light = GetDirectionalLight(i, surfaceWS, shadowData);
