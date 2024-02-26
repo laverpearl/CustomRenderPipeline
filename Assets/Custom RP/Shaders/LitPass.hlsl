@@ -1,6 +1,20 @@
 #ifndef CUSTOM_LIT_PASS_INCLUDED
 #define CUSTOM_LIT_PASS_INCLUDED
 
+#if defined(LIGHTMAP_ON)
+#define GI_ATTRIBUTE_DATA float2 lightMapUV : TEXCOORD1;
+#define GI_VARYINGS_DATA float2 lightMapUV : VAR_LIGHT_MAP_UV;
+#define TRANSFER_GI_DATA(input, output) \
+		output.lightMapUV = input.lightMapUV * \
+		unity_LightmapST.xy + unity_LightmapST.zw;
+#define GI_FRAGMENT_DATA(input) input.lightMapUV
+#else
+#define GI_ATTRIBUTE_DATA
+#define GI_VARYINGS_DATA
+#define TRANSFER_GI_DATA(input, output)
+#define GI_FRAGMENT_DATA(input) 0.0
+#endif
+
 #include "../ShaderLibrary/Common.hlsl"
 #include "../ShaderLibrary/Surface.hlsl"
 #include "../ShaderLibrary/Shadows.hlsl"
@@ -88,7 +102,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 #else
 	BRDF brdf = GetBRDF(surface);
 #endif
-	GI gi = GetGI(GI_FRAGMENT_DATA(input));
+	GI gi = GetGI(GI_FRAGMENT_DATA(input), surface);
 	float3 color = GetLighting(surface, brdf, gi);
 	return float4(color, surface.alpha);
 
