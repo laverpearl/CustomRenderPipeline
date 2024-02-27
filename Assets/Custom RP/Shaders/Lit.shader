@@ -20,6 +20,11 @@ Shader "Custom RP/Lit"
 
 	SubShader
 	{
+		HLSLINCLUDE
+		#include "../ShaderLibrary/Common.hlsl"
+		#include "LitInput.hlsl"
+		ENDHLSL
+
 		Pass
 		{
 			Tags { "LightMode" = "CustomLit" }
@@ -56,6 +61,21 @@ Shader "Custom RP/Lit"
 			#include "ShadowCasterPass.hlsl"
 			ENDHLSL
 		}
+
+		//Pass {
+		//	Tags {
+		//		"LightMode" = "Meta"
+		//	}
+
+		//	Cull Off
+
+		//	HLSLPROGRAM
+		//	#pragma target 3.5
+		//	#pragma vertex MetaPassVertex
+		//	#pragma fragment MetaPassFragment
+		//	#include "MetaPass.hlsl"
+		//	ENDHLSL
+		//}
 	}
 
 	CustomEditor "CustomShaderGUI"

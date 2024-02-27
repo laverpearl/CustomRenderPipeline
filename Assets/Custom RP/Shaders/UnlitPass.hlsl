@@ -33,8 +33,8 @@ Varyings UnlitPassVertex(Attributes input)
 		max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
 #endif
 
-	float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-	output.baseUV = input.baseUV * baseST.xy + baseST.zw;
+	//float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+	output.baseUV = TransformBaseUV(input.baseUV);
 	return output;
 }
 

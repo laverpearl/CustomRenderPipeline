@@ -1,21 +1,6 @@
 #ifndef CUSTOM_LIT_PASS_INCLUDED
 #define CUSTOM_LIT_PASS_INCLUDED
 
-#if defined(LIGHTMAP_ON)
-#define GI_ATTRIBUTE_DATA float2 lightMapUV : TEXCOORD1;
-#define GI_VARYINGS_DATA float2 lightMapUV : VAR_LIGHT_MAP_UV;
-#define TRANSFER_GI_DATA(input, output) \
-		output.lightMapUV = input.lightMapUV * \
-		unity_LightmapST.xy + unity_LightmapST.zw;
-#define GI_FRAGMENT_DATA(input) input.lightMapUV
-#else
-#define GI_ATTRIBUTE_DATA
-#define GI_VARYINGS_DATA
-#define TRANSFER_GI_DATA(input, output)
-#define GI_FRAGMENT_DATA(input) 0.0
-#endif
-
-#include "../ShaderLibrary/Common.hlsl"
 #include "../ShaderLibrary/Surface.hlsl"
 #include "../ShaderLibrary/Shadows.hlsl"
 #include "../ShaderLibrary/Light.hlsl"
@@ -47,23 +32,12 @@ struct Varyings
 Varyings LitPassVertex(Attributes input)
 {
 	Varyings output;
-
 	UNITY_SETUP_INSTANCE_ID(input);
 	UNITY_TRANSFER_INSTANCE_ID(input, output);
 	TRANSFER_GI_DATA(input, output);
-
 	output.positionWS = TransformObjectToWorld(input.positionOS);
 	output.positionCS = TransformWorldToHClip(output.positionWS);
-	//output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-#if UNITY_REVERSED_Z
-	output.positionCS.z =
-		min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-#else
-	output.positionCS.z =
-		max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
-#endif
-	float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-	output.baseUV = input.baseUV * baseST.xy + baseST.zw;
+	output.baseUV = TransformBaseUV(input.baseUV);
 	output.normalWS = TransformObjectToWorldNormal(input.normalOS);
 	return output;
 }
@@ -71,15 +45,9 @@ Varyings LitPassVertex(Attributes input)
 float4 LitPassFragment(Varyings input) : SV_TARGET
 {
 	UNITY_SETUP_INSTANCE_ID(input);
-
-	float4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.baseUV);
-	float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
-	float4 base = baseMap * baseColor;
-#if defined(_SHADOWS_CLIP)
-	clip(base.a - UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff));
-#elif defined(_SHADOWS_DITHER)
-	float dither = InterleavedGradientNoise(input.positionCS.xy, 0);
-	clip(base.a - dither);
+	float4 base = GetBase(input.baseUV);
+#if defined(_CLIPPING)
+		clip(base.a - GetCutoff(input.baseUV));
 #endif
 	Surface surface;
 	surface.position = input.positionWS;
@@ -88,15 +56,10 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 	surface.depth = -TransformWorldToView(input.positionWS).z;
 	surface.color = base.rgb;
 	surface.alpha = base.a;
-
-	surface.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
-	surface.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
+	surface.metallic = GetMetallic(input.baseUV);
+	surface.smoothness = GetSmoothness(input.baseUV);
 	surface.dither = InterleavedGradientNoise(input.positionCS.xy, 0);
 
-	//BRDF brdf = GetBRDF(surface);
-	//float3 color = GetLighting(surface, brdf);
-
-	//return float4(color, surface.alpha);
 #if defined(_PREMULTIPLY_ALPHA)
 	BRDF brdf = GetBRDF(surface, true);
 #else
@@ -104,15 +67,8 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 #endif
 	GI gi = GetGI(GI_FRAGMENT_DATA(input), surface);
 	float3 color = GetLighting(surface, brdf, gi);
+	//color += GetEmission(input.baseUV);
 	return float4(color, surface.alpha);
-
-	// 월드 공간 법선 벡터
-	//base.rgb = input.normalWS;
-
-	// 오류 시각화
-	// base.rgb = abs(length(input.normalWS) - 1.0) * 10.0;
-	//return base;
 }
 
 #endif
-
