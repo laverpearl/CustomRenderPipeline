@@ -30,19 +30,19 @@ Shader "Custom RP/Unlit"
 			ENDHLSL
 		}
 
-		//Pass {
-		//	Tags {
-		//		"LightMode" = "Meta"
-		//	}
+		Pass {
+			Tags {
+				"LightMode" = "Meta"
+			}
 
-		//	Cull Off
+			Cull Off
 
-		//	HLSLPROGRAM
-		//	#pragma target 3.5
-		//	#pragma vertex MetaPassVertex
-		//	#pragma fragment MetaPassFragment
-		//	#include "MetaPass.hlsl"
-		//	ENDHLSL
-		//}
+			HLSLPROGRAM
+			#pragma target 3.5
+			#pragma vertex MetaPassVertex
+			#pragma fragment MetaPassFragment
+			#include "MetaPass.hlsl"
+			ENDHLSL
+		}
 	}
 }
